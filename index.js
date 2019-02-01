@@ -98,7 +98,6 @@ instance.prototype.actions = function(system) {
 				}
 			]
 		},
-		,
 		'custom': {
 			label: 'Custom command',
 			options: [
