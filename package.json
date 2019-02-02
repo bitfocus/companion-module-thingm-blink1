@@ -1,11 +1,11 @@
 {
-	"name": "thingm-blink",
+	"name": "thingm-blink1",
 	"version": "1.0.0",
 	"api_version": "1.0.0",
 	"keywords": [
 		"Tally"
 	],
-	"manufacturer": "ThinkM",
+	"manufacturer": "ThingM",
 	"product": "Blink(1)",
 	"shortname": "blink",
 	"main": "index.js",
@@ -14,12 +14,12 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-thinkm-blink.git"
+		"url": "git+https://github.com/bitfocus/companion-module-thingm-blink.git"
 	},
 	"author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-thinkm-blink/issues"
+		"url": "https://github.com/bitfocus/companion-module-thingm-blink/issues"
 	},
-	"homepage": "https://github.com/bitfocus/companion-module-thinkm-blink#readme"
+	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme"
 }
