@@ -36,7 +36,7 @@ instance.prototype.config_fields = function () {
 			id: 'info',
 			width: 12,
 			label: 'Information',
-			value: 'This module is for the Blink(1) device from ThinkM'
+			value: 'This module is for the Blink(1) device from ThingM, sending a HTTP GET'
 		},
 		{
 			type: 'textinput',
