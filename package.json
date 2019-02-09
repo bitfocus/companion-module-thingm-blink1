@@ -1,9 +1,13 @@
 {
 	"name": "thingm-blink1",
-	"legacy": ["thinkm-blink","thingm-blink"],
-	"version": "1.0.1",
+	"legacy": [
+		"thinkm-blink",
+		"thingm-blink"
+	],
+	"version": "1.1.1",
 	"api_version": "1.0.0",
 	"keywords": [
+		"LED",
 		"Tally"
 	],
 	"manufacturer": "ThingM",
@@ -22,5 +26,8 @@
 	"bugs": {
 		"url": "https://github.com/bitfocus/companion-module-thingm-blink/issues"
 	},
-	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme"
+	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
+	"dependencies": {
+		"node-blink1": "^0.2.3"
+	}
 }
