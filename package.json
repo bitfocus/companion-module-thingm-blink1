@@ -4,7 +4,7 @@
 		"thinkm-blink",
 		"thingm-blink"
 	],
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"api_version": "1.0.0",
 	"keywords": [
 		"LED",
@@ -28,6 +28,6 @@
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
 	"dependencies": {
-		"node-blink1": "^0.2.3"
+		"node-blink1": "https://github.com/bitfocus/node-blink1.git#v0.2.4"
 	}
 }
