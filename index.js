@@ -1,30 +1,22 @@
-var instance_skel = require('../../instance_skel');
-var Blink1 = require('node-blink1');
-var actions = require('./actions');
-var debug;
-var log;
+const instance_skel = require('../../instance_skel');
+const Blink1 = require('node-blink1');
+const actions = require('./actions');
 
 class instance extends instance_skel {
 
 	constructor(system, id, config) {
 		super(system, id, config)
+		
 		this.release_time = 200; // ms to send button release
 		
 		Object.assign(this, {
 			...actions,
 		});
 
-		this.actions()
-	}
-
-	actions(system) {
-		this.setActions(this.getActions());
+		this.setActions(this.getActions())
 	}
 
 	init() {
-		debug = this.debug;
-		log = this.log;
-
 		this.CHOICES_SERIALS = [];
 		try {
 			var devices = Blink1.devices();
@@ -131,13 +123,13 @@ class instance extends instance_skel {
 		}
 		if (this.config.serial) {
 			this.blink1 = new Blink1(this.config.serial);
-			debug('serial after config update', this.config.serial);
+			this.debug('serial after config update', this.config.serial);
 		}
 	};
 
 	// When module gets deleted
 	destroy() {
-		debug("destroy");
+		this.debug("destroy");
 	};
 
 	tallyOnListener (label, variable, value) {
@@ -198,7 +190,7 @@ class instance extends instance_skel {
 
 			case 'color':
 				cmd = `fadeToRGB?rgb=%23${action.options.color}&time=0.5`;
-				debug('Command', blinkServer + cmd );
+				this.debug('Command', blinkServer + cmd );
 				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
 
 					if (err !== null) {
@@ -213,7 +205,7 @@ class instance extends instance_skel {
 
 			case 'pattern':
 				cmd = 'pattern/play?pname='+ action.options.pattern;
-				debug('Command', blinkServer + cmd );
+				this.debug('Command', blinkServer + cmd );
 				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
 					if (err !== null) {
 						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
@@ -227,7 +219,7 @@ class instance extends instance_skel {
 
 			case 'custom':
 				cmd = action.options.custom;
-				debug('Command', blinkServer + cmd );
+				this.debug('Command', blinkServer + cmd );
 				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
 					if (err !== null) {
 						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
@@ -240,12 +232,12 @@ class instance extends instance_skel {
 				break;
 
 			case 'loc_color':
-				debug('set local color', action.options.color);
+				this.debug('set local color', action.options.color);
 				try {
 					let color = this.c_to_rgb(action.options.color);
 					this.blink1.fadeToRGB(100, parseInt(color[0]), parseInt(color[1]), parseInt(color[2]));
 				} catch(err) {
-					log('error','Did you insert the right Blink1?')
+					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
 				}
 				break;
@@ -254,7 +246,7 @@ class instance extends instance_skel {
 					try {
 					this.blink1.fadeToRGB(100, 255, 0, 0);
 				} catch(err) {
-					log('error','Did you insert the right Blink1?')
+					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
 				}
 				break;
@@ -263,17 +255,17 @@ class instance extends instance_skel {
 				try {
 					this.blink1.off();
 				} catch(err) {
-					log('error','Did you insert the right Blink1?')
+					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
 				}
 				break;
 
 			case 'loc_stop':
-				debug('stop Blink1');
+				this.debug('stop Blink1');
 				try {
 					this.blink1.off();
 				} catch(err) {
-					log('error','Did you insert the right Blink1?')
+					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
 				}
 				break;
