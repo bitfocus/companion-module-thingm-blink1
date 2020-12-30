@@ -28,6 +28,6 @@
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
 	"dependencies": {
-		"node-blink1": "https://github.com/bitfocus/node-blink1.git#v0.2.4"
+		"node-blink1": "^0.5.1"
 	}
 }
