@@ -69,8 +69,10 @@ class instance extends instance_skel {
 				this.log('error', `Failed to open device: ${err}`)
 				this.status(this.STATUS_ERROR, `Failed to open device: ${err}`)
 			}
-		} else {
+		} else if (this.config.host) {
 			this.status(this.STATUS_OK)
+		} else {
+			this.status(this.STATUS_ERROR, 'No device specified')
 		}
 	}
 
@@ -187,24 +189,41 @@ class instance extends instance_skel {
 		}
 		this.status(this.STATUS_OK);
 
-
 		this.setVariable('tallySource', value);
 		this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
 			if (value == parsedValue) {
 				this.setVariable('tallyOn', 'On')
-				// internal action
-				this.system.emit('action_run', {
-					action: ('tallyOn'),
-					instance: this.id
-				});
+
+				if (this.blink1) {
+					try {
+						this.blink1.fadeToRGB(100, 255, 0, 0);
+						this.status(this.STATUS_OK);
+					} catch(err) {
+						this.log('error', `Device returned error: ${err}`)
+						this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+					}
+				} else if (this.config.host) {
+					this.log('error', 'Function not supported (yet?)')
+				} else {
+					this.log('warn', 'No device selected')
+				}
 			} else {
 				setTimeout(() => {
 					this.setVariable('tallyOn', 'Off')
-					// internal action
-					this.system.emit('action_run', {
-						action: ('tallyOff'),
-						instance: this.id
-					});
+
+					if (this.blink1) {
+						try {
+							this.blink1.off();
+							this.status(this.STATUS_OK);
+						} catch(err) {
+							this.log('error', `Device returned error: ${err}`)
+							this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+						}
+					} else if (this.config.host) {
+						this.log('error', 'Function not supported (yet?)')
+					} else {
+						this.log('warn', 'No device selected')
+					}
 				}, this.release_time);
 			}
 		});
@@ -264,24 +283,6 @@ class instance extends instance_skel {
 				try {
 					let color = this.rgbRev(action.options.color);
 					this.blink1.fadeToRGB(100, color.r, color.g, color.b);
-				} catch(err) {
-					this.log('error','Did you insert the right Blink1?')
-					this.status(this.STATUS_ERROR);
-				}
-				break;
-
-			case 'tallyOn':
-					try {
-					this.blink1.fadeToRGB(100, 255, 0, 0);
-				} catch(err) {
-					this.log('error','Did you insert the right Blink1?')
-					this.status(this.STATUS_ERROR);
-				}
-				break;
-
-			case 'tallyOff':
-				try {
-					this.blink1.off();
 				} catch(err) {
 					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
