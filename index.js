@@ -6,7 +6,7 @@ class instance extends instance_skel {
 
 	constructor(system, id, config) {
 		super(system, id, config)
-		
+
 		this.release_time = 200; // ms to send button release
 		
 		Object.assign(this, {
@@ -14,26 +14,22 @@ class instance extends instance_skel {
 		});
 
 		this.setActions(this.getActions())
+
+		this.tallyOnListener = this.tallyOnListener.bind(this)
 	}
 
 	init() {
-		this.CHOICES_SERIALS = [];
 		try {
-			var devices = Blink1.devices();
-			for (var n in devices) {
-				var serial = devices[n];
-				console.log('serial', serial);
-				this.CHOICES_SERIALS.push({ label: serial, id: serial });
-			}
 			if (this.config.serial) {
 				this.blink1 = new Blink1(this.config.serial);
 			}
 		} catch(err) {
 			console.log(err)
 		}
-		this.setupEventListeners();
-		this.status(this.STATE_OK);
 
+		this.system.on('variable_changed', this.tallyOnListener);
+
+		this.status(this.STATE_OK);
 	};
 
 	// Return config fields for web config
@@ -49,6 +45,8 @@ class instance extends instance_skel {
 				)
 			)
 		);
+
+		const deviceSerials = Blink1.devices().map(serial => ({ label: serial, id: serial }));
 
 		return [
 			{
@@ -77,7 +75,7 @@ class instance extends instance_skel {
 				id: 'serial',
 				label: 'Serial of local control',
 				width: 6,
-				choices: this.CHOICES_SERIALS
+				choices: deviceSerials
 			},
 			{
 				type: 'text',
@@ -114,13 +112,6 @@ class instance extends instance_skel {
 
 	updateConfig (config) {
 		this.config = config;
-		var devices = Blink1.devices();
-		this.CHOICES_SERIALS = [];
-		for (var n in devices) {
-			var serial = devices[n];
-			console.log('serial', serial);
-			this.CHOICES_SERIALS.push({ label: serial, id: serial });
-		}
 		if (this.config.serial) {
 			this.blink1 = new Blink1(this.config.serial);
 			this.debug('serial after config update', this.config.serial);
@@ -130,6 +121,8 @@ class instance extends instance_skel {
 	// When module gets deleted
 	destroy() {
 		this.debug("destroy");
+
+		this.system.removeListener('variable_changed', this.tallyOnListener);
 	};
 
 	tallyOnListener (label, variable, value) {
@@ -170,17 +163,6 @@ class instance extends instance_skel {
 			r = r_0 / 65536;
 
 		return [r, g, b];
-	}
-
-	setupEventListeners() {
-		if (this.activeTallyOnListener) {
-			this.system.removeListener('variable_changed', this.activeTallyOnListener);
-			delete this.activeTallyOnListener;
-		}
-		if (this.config.tallyOnVariable) {
-				this.activeTallyOnListener = this.tallyOnListener.bind(this);
-				this.system.on('variable_changed', this.activeTallyOnListener);
-		}
 	}
 
 	action(action) {
