@@ -1,6 +1,7 @@
 const instance_skel = require('../../instance_skel');
 const Blink1 = require('node-blink1');
 const actions = require('./actions');
+const { upgradeScripts } = require('./upgrade')
 
 class instance extends instance_skel {
 
@@ -8,10 +9,26 @@ class instance extends instance_skel {
 		super(system, id, config)
 
 		this.release_time = 200; // ms to send button release
+
+		if (this.config.deviceType === undefined) {
+			if (this.config.host) {
+				this.config.deviceType = 'remote'
+			} else {
+				this.config.deviceType = 'local'
+			}
+			this.saveConfig()
+		}
 		
 		Object.assign(this, {
 			...actions,
 		});
+
+		// Hack to force upgrade scripts to run again
+		this.config._configIdx = -1
+
+		for (const script of upgradeScripts) {
+			this.addUpgradeScript(script)
+		}
 
 		this.setActions(this.getActions())
 
@@ -19,18 +36,43 @@ class instance extends instance_skel {
 	}
 
 	init() {
-		try {
-			if (this.config.serial) {
-				this.blink1 = new Blink1(this.config.serial);
-			}
-		} catch(err) {
-			console.log(err)
-		}
-
 		this.system.on('variable_changed', this.tallyOnListener);
 
-		this.status(this.STATE_OK);
-	};
+		this.reopenDevice()
+	}
+
+	closeDevice() {
+		if (this.blink1) {
+			try {
+				this.blink1.close()
+			} catch (e) {
+				console.log(e)
+			}
+			delete this.blink1
+		}
+	}
+
+	reopenDevice() {
+		// Close old device handle
+		this.closeDevice()
+
+		if (this.config.serial) {
+			try {
+				this.blink1 = new Blink1(this.config.serial);
+				this.status(this.STATUS_OK)
+
+				this.blink1.hidDevice.on('error', (err) => {
+					this.log('error', `Device reported error: ${err}`)
+					this.status(this.STATUS_WARNING, `Device reported error: ${err}`)
+				})
+			} catch (err) {
+				this.log('error', `Failed to open device: ${err}`)
+				this.status(this.STATUS_ERROR, `Failed to open device: ${err}`)
+			}
+		} else {
+			this.status(this.STATUS_OK)
+		}
+	}
 
 	// Return config fields for web config
 	config_fields () {
@@ -57,9 +99,21 @@ class instance extends instance_skel {
 				value: 'This module is for the Blink(1) device from ThingM, sending a HTTP GET, You can also use it localy'
 			},
 			{
+				type: 'dropdown',
+				id: 'deviceType',
+				label: 'Device Type',
+				width: 12,
+				tooltip: 'Whether the Blink(1) is connected locally, or is remote',
+				choices: [
+					{ id: 'local', label: 'Local' },
+					{ id: 'remote', label: 'Remote' },
+				],
+				default: 'local'
+			},
+			{
 				type: 'textinput',
 				id: 'host',
-				label: 'Target IP',
+				label: 'Remote IP',
 				width: 6,
 				regex: this.REGEX_IP
 			},
@@ -112,10 +166,8 @@ class instance extends instance_skel {
 
 	updateConfig (config) {
 		this.config = config;
-		if (this.config.serial) {
-			this.blink1 = new Blink1(this.config.serial);
-			this.debug('serial after config update', this.config.serial);
-		}
+
+		this.reopenDevice()
 	};
 
 	// When module gets deleted
@@ -123,15 +175,19 @@ class instance extends instance_skel {
 		this.debug("destroy");
 
 		this.system.removeListener('variable_changed', this.tallyOnListener);
+
+		this.closeDevice()
 	};
 
 	tallyOnListener (label, variable, value) {
 		const { enableTally, tallyOnVariable, tallyOnValue } = this.config;
-		this.status(this.STATUS_OK);
-
 		if (!enableTally || `${label}:${variable}` != tallyOnVariable) {
+			// Not the variable we care about
 			return;
 		}
+		this.status(this.STATUS_OK);
+
+
 		this.setVariable('tallySource', value);
 		this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
 			if (value == parsedValue) {
@@ -155,16 +211,6 @@ class instance extends instance_skel {
 
 	}
 
-	c_to_rgb(c) {
-		let b = c % 256,
-			g_0 = (c % 65536 - b),
-			r_0 = c - g_0 - b,
-			g = g_0 / 256,
-			r = r_0 / 65536;
-
-		return [r, g, b];
-	}
-
 	action(action) {
 		var cmd;
 		var blinkServer = `http://${this.config.host}:${this.config.port}/blink1/`;
@@ -173,7 +219,7 @@ class instance extends instance_skel {
 			case 'color':
 				cmd = `fadeToRGB?rgb=%23${action.options.color}&time=0.5`;
 				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
+				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
 
 					if (err !== null) {
 						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
@@ -188,7 +234,7 @@ class instance extends instance_skel {
 			case 'pattern':
 				cmd = 'pattern/play?pname='+ action.options.pattern;
 				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
+				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
 					if (err !== null) {
 						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
 						this.status(this.STATUS_ERROR, result.error.code);
@@ -202,7 +248,7 @@ class instance extends instance_skel {
 			case 'custom':
 				cmd = action.options.custom;
 				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, function (err, result) {
+				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
 					if (err !== null) {
 						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
 						this.status(this.STATUS_ERROR, result.error.code);
@@ -216,8 +262,8 @@ class instance extends instance_skel {
 			case 'loc_color':
 				this.debug('set local color', action.options.color);
 				try {
-					let color = this.c_to_rgb(action.options.color);
-					this.blink1.fadeToRGB(100, parseInt(color[0]), parseInt(color[1]), parseInt(color[2]));
+					let color = this.rgbRev(action.options.color);
+					this.blink1.fadeToRGB(100, color.r, color.g, color.b);
 				} catch(err) {
 					this.log('error','Did you insert the right Blink1?')
 					this.status(this.STATUS_ERROR);
