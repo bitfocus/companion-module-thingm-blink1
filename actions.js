@@ -75,7 +75,7 @@ exports.getActions = function () {
 	}
 
 	actions['pattern'] = {
-		label: 'Set pattern for remote Blink1',
+		label: 'Set pattern for Blink1 (Remote only)',
 		options: [
 			{
 				 type: 'textinput',
@@ -83,17 +83,58 @@ exports.getActions = function () {
 				 id: 'pattern',
 				 default: 'redflash'
 			}
-		]
+		],
+		callback: () => {
+			if (this.blink1) {
+				this.log('warn', 'Pattern not supported for local blink (yet)')
+			} else if (this.config.host) {
+				const cmd = `${getBlinkServer}pattern/play?pname=${action.options.pattern}`;
+
+				this.debug('Command', cmd );
+				this.system.emit('rest_get', cmd, (err, result) => {
+					if (err !== null) {
+						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
+						this.status(this.STATUS_ERROR, result.error.code);
+					}
+					else {
+						this.status(this.STATUS_OK);
+					}
+				});
+			} else {
+				this.log('warn', 'No device selected')
+			}
+		}
 	}
+
 	actions['custom'] = {
-		label: 'Custom command for remote Blink1',
+		label: 'Custom command for Blink1 (Remote only)',
 		options: [
 			{
 				 type: 'textinput',
-				 label: 'http:/host:port/blink1/yourcommand',
+				 label: 'http://host:port/blink1/yourcommand (Only the bit after blink1/)',
 				 id: 'custom'
 			}
-		]
+		],
+		callback: () => {
+			if (this.blink1) {
+				this.log('warn', 'Custom command not supported for local blink')
+			} else if (this.config.host) {
+				const cmd = `${getBlinkServer}${action.options.custom}`;
+
+				this.debug('Command', cmd );
+				this.system.emit('rest_get', cmd, (err, result) => {
+					if (err !== null) {
+						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
+						this.status(this.STATUS_ERROR, result.error.code);
+					}
+					else {
+						this.status(this.STATUS_OK);
+					}
+				});
+			} else {
+				this.log('warn', 'No device selected')
+			}
+		}
 	}
 	return actions;
 };

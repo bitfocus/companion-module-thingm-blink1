@@ -170,7 +170,7 @@ class instance extends instance_skel {
 		this.config = config;
 
 		this.reopenDevice()
-	};
+	}
 
 	// When module gets deleted
 	destroy() {
@@ -179,7 +179,7 @@ class instance extends instance_skel {
 		this.system.removeListener('variable_changed', this.tallyOnListener);
 
 		this.closeDevice()
-	};
+	}
 
 	tallyOnListener (label, variable, value) {
 		const { enableTally, tallyOnVariable, tallyOnValue } = this.config;
@@ -229,42 +229,5 @@ class instance extends instance_skel {
 		});
 
 	}
-
-	action(action) {
-		var cmd;
-		var blinkServer = `http://${this.config.host}:${this.config.port}/blink1/`;
-		switch (action.action) {
-
-			case 'pattern':
-				cmd = 'pattern/play?pname='+ action.options.pattern;
-				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
-						this.status(this.STATUS_ERROR, result.error.code);
-					}
-					else {
-						this.status(this.STATUS_OK);
-					}
-				});
-				break;
-
-			case 'custom':
-				cmd = action.options.custom;
-				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
-						this.status(this.STATUS_ERROR, result.error.code);
-					}
-					else {
-						this.status(this.STATUS_OK);
-					}
-				});
-				break;
-
-		}
-	};
-
 }
 exports = module.exports = instance;
