@@ -1,3 +1,7 @@
+function toHex(color) {
+	return ('00000000' + parseInt(color, 10).toString(16)).substr(-6)
+}
+
 exports.getActions = function () {
 
 	const getBlinkServer = () => `http://${this.config.host}:${this.config.port}/blink1/`;
@@ -25,8 +29,8 @@ exports.getActions = function () {
 					this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
 				}
 			} else if (this.config.host) {
-				const colorHex = parseInt(action.options.color, 10).toString(16)
-				const cmd = `${getBlinkServer}fadeToRGB?rgb=%23${colorHex}&time=0.5`;
+				const colorHex = toHex(action.options.color)
+				const cmd = `${getBlinkServer()}fadeToRGB?rgb=%23${colorHex}&time=0.5`;
 
 				this.debug('Command', cmd );
 				this.system.emit('rest_get', cmd, (err, result) => {
@@ -49,14 +53,14 @@ exports.getActions = function () {
 			this.debug('stop Blink1');
 			if (this.blink1) {
 				try {
-					this.blink1.fadeToRGB(100, 0, 0, 0);
+					this.blink1.off();
 					this.status(this.STATUS_OK);
 				} catch(err) {
 					this.log('error', `Device returned error: ${err}`)
 					this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
 				}
 			} else if (this.config.host) {
-				const cmd = `${getBlinkServer}fadeToRGB?rgb=%23000000&time=0.5`;
+				const cmd = `${getBlinkServer()}off`;
 
 				this.debug('Command', cmd );
 				this.system.emit('rest_get', cmd, (err, result) => {
@@ -84,11 +88,11 @@ exports.getActions = function () {
 				 default: 'redflash'
 			}
 		],
-		callback: () => {
+		callback: (action) => {
 			if (this.blink1) {
 				this.log('warn', 'Pattern not supported for local blink (yet)')
 			} else if (this.config.host) {
-				const cmd = `${getBlinkServer}pattern/play?pname=${action.options.pattern}`;
+				const cmd = `${getBlinkServer()}pattern/play?pname=${action.options.pattern}`;
 
 				this.debug('Command', cmd );
 				this.system.emit('rest_get', cmd, (err, result) => {
@@ -115,11 +119,11 @@ exports.getActions = function () {
 				 id: 'custom'
 			}
 		],
-		callback: () => {
+		callback: (action) => {
 			if (this.blink1) {
 				this.log('warn', 'Custom command not supported for local blink')
 			} else if (this.config.host) {
-				const cmd = `${getBlinkServer}${action.options.custom}`;
+				const cmd = `${getBlinkServer()}${action.options.custom}`;
 
 				this.debug('Command', cmd );
 				this.system.emit('rest_get', cmd, (err, result) => {

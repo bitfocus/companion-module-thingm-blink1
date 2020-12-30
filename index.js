@@ -56,7 +56,7 @@ class instance extends instance_skel {
 		// Close old device handle
 		this.closeDevice()
 
-		if (this.config.serial) {
+		if (this.config.deviceType === 'local' && this.config.serial) {
 			try {
 				this.blink1 = new Blink1(this.config.serial);
 				this.status(this.STATUS_OK)
@@ -69,7 +69,7 @@ class instance extends instance_skel {
 				this.log('error', `Failed to open device: ${err}`)
 				this.status(this.STATUS_ERROR, `Failed to open device: ${err}`)
 			}
-		} else if (this.config.host) {
+		} else if (this.config.deviceType === 'remote' && this.config.host) {
 			this.status(this.STATUS_OK)
 		} else {
 			this.status(this.STATUS_ERROR, 'No device specified')
