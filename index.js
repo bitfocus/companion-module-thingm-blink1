@@ -235,21 +235,6 @@ class instance extends instance_skel {
 		var blinkServer = `http://${this.config.host}:${this.config.port}/blink1/`;
 		switch (action.action) {
 
-			case 'color':
-				cmd = `fadeToRGB?rgb=%23${action.options.color}&time=0.5`;
-				this.debug('Command', blinkServer + cmd );
-				this.system.emit('rest_get', blinkServer + cmd, (err, result) => {
-
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')');
-						this.status(this.STATUS_ERROR, result.error.code);
-					}
-					else {
-						this.status(this.STATUS_OK);
-					}
-				});
-				break;
-
 			case 'pattern':
 				cmd = 'pattern/play?pname='+ action.options.pattern;
 				this.debug('Command', blinkServer + cmd );
@@ -278,26 +263,6 @@ class instance extends instance_skel {
 				});
 				break;
 
-			case 'loc_color':
-				this.debug('set local color', action.options.color);
-				try {
-					let color = this.rgbRev(action.options.color);
-					this.blink1.fadeToRGB(100, color.r, color.g, color.b);
-				} catch(err) {
-					this.log('error','Did you insert the right Blink1?')
-					this.status(this.STATUS_ERROR);
-				}
-				break;
-
-			case 'loc_stop':
-				this.debug('stop Blink1');
-				try {
-					this.blink1.off();
-				} catch(err) {
-					this.log('error','Did you insert the right Blink1?')
-					this.status(this.STATUS_ERROR);
-				}
-				break;
 		}
 	};
 
