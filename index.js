@@ -161,7 +161,7 @@ class instance extends instance_skel {
 				id: 'tallyOnValue',
 				label: 'Tally On Value (also dynamic!, Only local connected)',
 				width: 5,
-				tooltip: 'When the variable equals this value, the camera tally light will be turned on.  Also supports dynamic variable references.  For example, $(atem:aux1)'
+				tooltip: 'When the variable equals this value, the camera tally light will be turned on.  Also supports dynamic variable references.  For example, $(atem:aux1_input)'
 			}
 		]
 	};
@@ -183,37 +183,16 @@ class instance extends instance_skel {
 
 	tallyOnListener (label, variable, value) {
 		const { enableTally, tallyOnVariable, tallyOnValue } = this.config;
-		if (!enableTally || `${label}:${variable}` != tallyOnVariable) {
-			// Not the variable we care about
-			return;
-		}
 		this.status(this.STATUS_OK);
-
-		this.setVariable('tallySource', value);
-		this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
-			if (value == parsedValue) {
-				this.setVariable('tallyOn', 'On')
-
-				if (this.blink1) {
-					try {
-						this.blink1.fadeToRGB(100, 255, 0, 0);
-						this.status(this.STATUS_OK);
-					} catch(err) {
-						this.log('error', `Device returned error: ${err}`)
-						this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
-					}
-				} else if (this.config.host) {
-					this.log('error', 'Function not supported (yet?)')
-				} else {
-					this.log('warn', 'No device selected')
-				}
-			} else {
-				setTimeout(() => {
-					this.setVariable('tallyOn', 'Off')
-
+		
+		if (enableTally && `${label}:${variable}` == tallyOnVariable) {
+			this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
+				if (value == parsedValue) {
+					this.setVariable('tallyOn', 'On')
+	
 					if (this.blink1) {
 						try {
-							this.blink1.off();
+							this.blink1.fadeToRGB(100, 255, 0, 0);
 							this.status(this.STATUS_OK);
 						} catch(err) {
 							this.log('error', `Device returned error: ${err}`)
@@ -224,10 +203,65 @@ class instance extends instance_skel {
 					} else {
 						this.log('warn', 'No device selected')
 					}
-				}, this.release_time);
-			}
-		});
-
+				} else {
+					setTimeout(() => {
+						this.setVariable('tallyOn', 'Off')
+	
+						if (this.blink1) {
+							try {
+								this.blink1.off();
+								this.status(this.STATUS_OK);
+							} catch(err) {
+								this.log('error', `Device returned error: ${err}`)
+								this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+							}
+						} else if (this.config.host) {
+							this.log('error', 'Function not supported (yet?)')
+						} else {
+							this.log('warn', 'No device selected')
+						}
+					}, this.release_time);
+				}
+			});
+		} else if (enableTally && `$(${label}:${variable})` == tallyOnValue) {
+			this.system.emit('variable_parse', "$("+tallyOnVariable +")", (parsedValue) => {
+				if (value == parsedValue) {
+					this.setVariable('tallyOn', 'On')
+	
+					if (this.blink1) {
+						try {
+							this.blink1.fadeToRGB(100, 255, 0, 0);
+							this.status(this.STATUS_OK);
+						} catch(err) {
+							this.log('error', `Device returned error: ${err}`)
+							this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+						}
+					} else if (this.config.host) {
+						this.log('error', 'Function not supported (yet?)')
+					} else {
+						this.log('warn', 'No device selected')
+					}
+				} else {
+					setTimeout(() => {
+						this.setVariable('tallyOn', 'Off')
+	
+						if (this.blink1) {
+							try {
+								this.blink1.off();
+								this.status(this.STATUS_OK);
+							} catch(err) {
+								this.log('error', `Device returned error: ${err}`)
+								this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+							}
+						} else if (this.config.host) {
+							this.log('error', 'Function not supported (yet?)')
+						} else {
+							this.log('warn', 'No device selected')
+						}
+					}, this.release_time);
+				}
+			});
+		}
 	}
 }
 exports = module.exports = instance;
