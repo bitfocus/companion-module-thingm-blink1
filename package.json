@@ -29,5 +29,8 @@
 	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
 	"dependencies": {
 		"node-blink1": "^0.5.1"
+	},
+	"resolutions": {
+		"**/node-hid": "^1.2.0"
 	}
 }
