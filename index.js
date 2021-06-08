@@ -26,13 +26,13 @@ class instance extends instance_skel {
 		// Hack to force upgrade scripts to run again
 		// this.config._configIdx = -1
 
-		for (const script of upgradeScripts) {
-			this.addUpgradeScript(script)
-		}
-
 		this.setActions(this.getActions())
 
 		this.tallyOnListener = this.tallyOnListener.bind(this)
+	}
+
+	static GetUpgradeScripts() {
+		return upgradeScripts
 	}
 
 	init() {

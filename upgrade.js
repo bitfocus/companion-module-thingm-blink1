@@ -1,7 +1,6 @@
 exports.upgradeScripts = [
-    function combineLocalAndRemote(config, actions, release_actions, feedbacks) {
-        const allActions = [...actions, ...release_actions]
-        for (const action of allActions) {
+    function combineLocalAndRemote(context, config, actions, feedbacks) {
+        for (const action of actions) {
             switch(action.action) {
                 case 'loc_color':
                     action.action = 'color2'
