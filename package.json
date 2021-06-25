@@ -4,7 +4,7 @@
 		"thinkm-blink",
 		"thingm-blink"
 	],
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"api_version": "1.0.0",
 	"keywords": [
 		"LED",

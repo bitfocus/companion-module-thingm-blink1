@@ -18,7 +18,7 @@ class instance extends instance_skel {
 			}
 			this.saveConfig()
 		}
-		
+
 		Object.assign(this, {
 			...actions,
 		});
@@ -36,7 +36,7 @@ class instance extends instance_skel {
 	}
 
 	init() {
-		this.system.on('variable_changed', this.tallyOnListener);
+		this.system.on('variables_changed', this.tallyOnListener);
 
 		this.reopenDevice()
 	}
@@ -77,7 +77,7 @@ class instance extends instance_skel {
 	}
 
 	// Return config fields for web config
-	config_fields () {
+	config_fields() {
 		const dynamicVariableChoices = [];
 		this.system.emit('variable_get_definitions', (definitions) =>
 			Object.entries(definitions).forEach(([instanceLabel, variables]) =>
@@ -166,7 +166,7 @@ class instance extends instance_skel {
 		]
 	};
 
-	updateConfig (config) {
+	updateConfig(config) {
 		this.config = config;
 
 		this.reopenDevice()
@@ -176,91 +176,94 @@ class instance extends instance_skel {
 	destroy() {
 		this.debug("destroy");
 
-		this.system.removeListener('variable_changed', this.tallyOnListener);
+		this.system.removeListener('variables_changed', this.tallyOnListener);
 
 		this.closeDevice()
 	}
 
-	tallyOnListener (label, variable, value) {
+	tallyOnListener(variables) {
 		const { enableTally, tallyOnVariable, tallyOnValue } = this.config;
 		this.status(this.STATUS_OK);
-		
-		if (enableTally && `${label}:${variable}` == tallyOnVariable) {
-			this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
-				if (value == parsedValue) {
-					this.setVariable('tallyOn', 'On')
-	
-					if (this.blink1) {
-						try {
-							this.blink1.fadeToRGB(100, 255, 0, 0);
-							this.status(this.STATUS_OK);
-						} catch(err) {
-							this.log('error', `Device returned error: ${err}`)
-							this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
-						}
-					} else if (this.config.host) {
-						this.log('error', 'Function not supported (yet?)')
-					} else {
-						this.log('warn', 'No device selected')
-					}
-				} else {
-					setTimeout(() => {
-						this.setVariable('tallyOn', 'Off')
-	
-						if (this.blink1) {
-							try {
-								this.blink1.off();
-								this.status(this.STATUS_OK);
-							} catch(err) {
-								this.log('error', `Device returned error: ${err}`)
-								this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+		for (var key in variables) {
+			if (variables.hasOwnProperty(key)) {
+				if (enableTally && key == tallyOnVariable) {
+					this.system.emit('variable_parse', tallyOnValue, (parsedValue) => {
+						if (variables[key] == parsedValue) {
+							this.setVariable('tallyOn', 'On')
+
+							if (this.blink1) {
+								try {
+									this.blink1.fadeToRGB(100, 255, 0, 0);
+									this.status(this.STATUS_OK);
+								} catch (err) {
+									this.log('error', `Device returned error: ${err}`)
+									this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+								}
+							} else if (this.config.host) {
+								this.log('error', 'Function not supported (yet?)')
+							} else {
+								this.log('warn', 'No device selected')
 							}
-						} else if (this.config.host) {
-							this.log('error', 'Function not supported (yet?)')
 						} else {
-							this.log('warn', 'No device selected')
+							setTimeout(() => {
+								this.setVariable('tallyOn', 'Off')
+
+								if (this.blink1) {
+									try {
+										this.blink1.off();
+										this.status(this.STATUS_OK);
+									} catch (err) {
+										this.log('error', `Device returned error: ${err}`)
+										this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+									}
+								} else if (this.config.host) {
+									this.log('error', 'Function not supported (yet?)')
+								} else {
+									this.log('warn', 'No device selected')
+								}
+							}, this.release_time);
 						}
-					}, this.release_time);
-				}
-			});
-		} else if (enableTally && `$(${label}:${variable})` == tallyOnValue) {
-			this.system.emit('variable_parse', "$("+tallyOnVariable +")", (parsedValue) => {
-				if (value == parsedValue) {
-					this.setVariable('tallyOn', 'On')
-	
-					if (this.blink1) {
-						try {
-							this.blink1.fadeToRGB(100, 255, 0, 0);
-							this.status(this.STATUS_OK);
-						} catch(err) {
-							this.log('error', `Device returned error: ${err}`)
-							this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
-						}
-					} else if (this.config.host) {
-						this.log('error', 'Function not supported (yet?)')
-					} else {
-						this.log('warn', 'No device selected')
-					}
-				} else {
-					setTimeout(() => {
-						this.setVariable('tallyOn', 'Off')
-	
-						if (this.blink1) {
-							try {
-								this.blink1.off();
-								this.status(this.STATUS_OK);
-							} catch(err) {
-								this.log('error', `Device returned error: ${err}`)
-								this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+					});
+				} else if (enableTally && key == tallyOnValue) {
+					this.system.emit('variable_parse', "$(" + tallyOnVariable + ")", (parsedValue) => {
+						if (variables[key] == parsedValue) {
+							this.setVariable('tallyOn', 'On')
+
+							if (this.blink1) {
+								try {
+									this.blink1.fadeToRGB(100, 255, 0, 0);
+									this.status(this.STATUS_OK);
+								} catch (err) {
+									this.log('error', `Device returned error: ${err}`)
+									this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+								}
+							} else if (this.config.host) {
+								this.log('error', 'Function not supported (yet?)')
+							} else {
+								this.log('warn', 'No device selected')
 							}
-						} else if (this.config.host) {
-							this.log('error', 'Function not supported (yet?)')
 						} else {
-							this.log('warn', 'No device selected')
+							setTimeout(() => {
+								this.setVariable('tallyOn', 'Off')
+
+								if (this.blink1) {
+									try {
+										this.blink1.off();
+										this.status(this.STATUS_OK);
+									} catch (err) {
+										this.log('error', `Device returned error: ${err}`)
+										this.status(this.STATUS_WARNING, `Device returned error: ${err}`);
+									}
+								} else if (this.config.host) {
+									this.log('error', 'Function not supported (yet?)')
+								} else {
+									this.log('warn', 'No device selected')
+								}
+							}, this.release_time);
 						}
-					}, this.release_time);
+					});
 				}
-			});
+			}
 		}
 	}
 }
