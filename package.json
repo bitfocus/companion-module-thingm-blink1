@@ -19,12 +19,12 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bitfocus/companion-module-thingm-blink.git"
+		"url": "git+https://github.com/bitfocus/companion-module-thingm-blink1.git"
 	},
 	"author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-thingm-blink/issues"
+		"url": "https://github.com/bitfocus/companion-module-thingm-blink1/issues"
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
 	"dependencies": {
