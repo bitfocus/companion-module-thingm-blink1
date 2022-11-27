@@ -31,6 +31,7 @@ export function GetConfigFields() {
 			width: 6,
 			regex: Regex.IP,
 			default: '',
+			isVisible: (options) => options.deviceType === 'remote',
 		},
 		{
 			type: 'number',
@@ -38,6 +39,7 @@ export function GetConfigFields() {
 			label: 'Port',
 			width: 6,
 			default: 8934,
+			isVisible: (options) => options.deviceType === 'remote',
 		},
 		{
 			type: 'dropdown',
@@ -52,6 +54,7 @@ export function GetConfigFields() {
 				...deviceSerials,
 			],
 			default: '',
+			isVisible: (options) => options.deviceType === 'local',
 		},
 		{
 			type: 'static-text',

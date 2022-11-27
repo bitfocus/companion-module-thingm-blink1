@@ -18,5 +18,8 @@
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^0.4.1"
+	},
+	"resolutions": {
+		"node-hid": "npm:@julusian/hid@2.2.0-0"
 	}
 }
