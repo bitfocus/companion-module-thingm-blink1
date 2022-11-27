@@ -2,6 +2,7 @@
 	"name": "thingm-blink1",
 	"version": "2.0.0",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -12,6 +13,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@companion-module/base": "~0.6.1",
+		"got": "^12.5.3",
 		"node-blink1": "^0.5.1"
 	},
 	"devDependencies": {

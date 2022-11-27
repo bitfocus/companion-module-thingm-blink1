@@ -1,82 +1,81 @@
+import { splitRgb, combineRgb, InstanceBase, InstanceStatus } from '@companion-module/base'
+import got from 'got'
+
 function toHex(color) {
 	return ('00000000' + parseInt(color, 10).toString(16)).substr(-6)
 }
 
-exports.getActions = function () {
-	const getBlinkServer = () => `http://${this.config.host}:${this.config.port}/blink1/`
+/**
+ * Get the list of actions
+ * @param {InstanceBase} self
+ */
+export function getActions(self) {
+	const runCommand = (cmd) => {
+		const url = `http://${self.config.host}:${self.config.port}/blink1/${cmd}`
+		console.log('Command', url)
+		got.get(url).then(
+			() => {
+				self.updateStatus(InstanceStatus.Ok)
+			},
+			(err) => {
+				self.log('error', `HTTP GET Request failed (${err})`)
+				self.updateStatus(InstanceStatus.Disconnected)
+			}
+		)
+	}
 
 	const actions = {}
 
 	actions['color2'] = {
-		label: 'Set color to Blink1',
+		name: 'Set color to Blink1',
 		options: [
 			{
 				type: 'colorpicker',
 				id: 'color',
 				label: 'Select color',
-				default: this.rgb(255, 0, 0),
+				default: combineRgb(255, 0, 0),
 			},
 		],
 		callback: (action) => {
-			if (this.blink1) {
+			if (self.blink1) {
 				try {
-					const color = this.rgbRev(action.options.color)
-					this.blink1.fadeToRGB(100, color.r, color.g, color.b)
-					this.status(this.STATUS_OK)
+					const color = splitRgb(action.options.color)
+					self.blink1.fadeToRGB(100, color.r, color.g, color.b)
 				} catch (err) {
-					this.log('error', `Device returned error: ${err}`)
-					this.status(this.STATUS_WARNING, `Device returned error: ${err}`)
+					self.log('error', `Device returned error: ${err}`)
 				}
-			} else if (this.config.host) {
+			} else if (self.config.host) {
 				const colorHex = toHex(action.options.color)
-				const cmd = `${getBlinkServer()}fadeToRGB?rgb=%23${colorHex}&time=0.5`
-
-				this.debug('Command', cmd)
-				this.system.emit('rest_get', cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')')
-						this.status(this.STATUS_ERROR, result.error.code)
-					} else {
-						this.status(this.STATUS_OK)
-					}
-				})
+				runCommand(`fadeToRGB?rgb=%23${colorHex}&time=0.5`)
 			} else {
-				this.log('warn', 'No device selected')
+				self.log('warn', 'No device selected')
+				self.updateStatus(InstanceStatus.Disconnected)
 			}
 		},
 	}
-	actions['off'] = {
-		label: 'Switch off Blink1',
-		callback: () => {
-			this.debug('stop Blink1')
-			if (this.blink1) {
-				try {
-					this.blink1.off()
-					this.status(this.STATUS_OK)
-				} catch (err) {
-					this.log('error', `Device returned error: ${err}`)
-					this.status(this.STATUS_WARNING, `Device returned error: ${err}`)
-				}
-			} else if (this.config.host) {
-				const cmd = `${getBlinkServer()}off`
 
-				this.debug('Command', cmd)
-				this.system.emit('rest_get', cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')')
-						this.status(this.STATUS_ERROR, result.error.code)
-					} else {
-						this.status(this.STATUS_OK)
-					}
-				})
+	actions['off'] = {
+		name: 'Switch off Blink1',
+		options: [],
+		callback: () => {
+			console.log('stop Blink1')
+			if (self.blink1) {
+				try {
+					self.blink1.off()
+				} catch (err) {
+					self.log('error', `Device returned error: ${err}`)
+				}
+			} else if (self.config.host) {
+				runCommand(`off`)
 			} else {
-				this.log('warn', 'No device selected')
+				self.log('warn', 'No device selected')
+				self.updateStatus(InstanceStatus.Disconnected)
 			}
 		},
 	}
 
 	actions['pattern'] = {
-		label: 'Set pattern for Blink1 (Remote only)',
+		name: 'Set pattern for Blink1 (Remote only)',
 		options: [
 			{
 				type: 'textinput',
@@ -86,28 +85,19 @@ exports.getActions = function () {
 			},
 		],
 		callback: (action) => {
-			if (this.blink1) {
-				this.log('warn', 'Pattern not supported for local blink (yet)')
-			} else if (this.config.host) {
-				const cmd = `${getBlinkServer()}pattern/play?pname=${action.options.pattern}`
-
-				this.debug('Command', cmd)
-				this.system.emit('rest_get', cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')')
-						this.status(this.STATUS_ERROR, result.error.code)
-					} else {
-						this.status(this.STATUS_OK)
-					}
-				})
+			if (self.blink1) {
+				self.log('warn', 'Pattern not supported for local blink (yet)')
+			} else if (self.config.host) {
+				runCommand(`pattern/play?pname=${action.options.pattern}`)
 			} else {
-				this.log('warn', 'No device selected')
+				self.log('warn', 'No device selected')
+				self.updateStatus(InstanceStatus.Disconnected)
 			}
 		},
 	}
 
 	actions['custom'] = {
-		label: 'Custom command for Blink1 (Remote only)',
+		name: 'Custom command for Blink1 (Remote only)',
 		options: [
 			{
 				type: 'textinput',
@@ -116,24 +106,16 @@ exports.getActions = function () {
 			},
 		],
 		callback: (action) => {
-			if (this.blink1) {
-				this.log('warn', 'Custom command not supported for local blink')
-			} else if (this.config.host) {
-				const cmd = `${getBlinkServer()}${action.options.custom}`
-
-				this.debug('Command', cmd)
-				this.system.emit('rest_get', cmd, (err, result) => {
-					if (err !== null) {
-						this.log('error', 'HTTP GET Request failed (' + result.error.code + ')')
-						this.status(this.STATUS_ERROR, result.error.code)
-					} else {
-						this.status(this.STATUS_OK)
-					}
-				})
+			if (self.blink1) {
+				self.log('warn', 'Custom command not supported for local blink')
+			} else if (self.config.host) {
+				runCommand(`${action.options.custom}`)
 			} else {
-				this.log('warn', 'No device selected')
+				self.log('warn', 'No device selected')
+				self.updateStatus(InstanceStatus.Disconnected)
 			}
 		},
 	}
+
 	return actions
 }
