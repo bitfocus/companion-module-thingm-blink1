@@ -1,18 +1,6 @@
 {
 	"name": "thingm-blink1",
-	"legacy": [
-		"thinkm-blink",
-		"thingm-blink"
-	],
-	"version": "1.2.4",
-	"api_version": "1.0.0",
-	"keywords": [
-		"LED",
-		"Tally"
-	],
-	"manufacturer": "ThingM",
-	"product": "Blink(1)",
-	"shortname": "Blink(1)",
+	"version": "2.0.0",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -21,13 +9,12 @@
 		"type": "git",
 		"url": "git+https://github.com/bitfocus/companion-module-thingm-blink1.git"
 	},
-	"author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/bitfocus/companion-module-thingm-blink1/issues"
-	},
-	"homepage": "https://github.com/bitfocus/companion-module-thingm-blink#readme",
 	"dependencies": {
+		"@companion-module/base": "~0.6.1",
 		"node-blink1": "^0.5.1"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^0.4.1"
 	}
 }
