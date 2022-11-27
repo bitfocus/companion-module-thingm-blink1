@@ -17,7 +17,12 @@ It is also possible to connect multiple Blink1's to your local machine and selec
 
 **Tally**
 
-You can let this module work as a Tally light based on a selection of a variable. You select a variable you would like to have Tally on, like `atem:pgm1_input`.
-Then put a value in the `Tally on Value` box like `CAM1`. Now your Blink will turn RED when your `atem:pgm1`\_input variable hits CAM1 (so when pressing camera 1 on your ATEM mixer).
+Companion 3.0 does not allow modules to do this anymore. But you can recreate it with a couple of simple triggers. Both are needed for proper functionality.
 
-You can also compare against a variable. So if you want to know if your AUX1 has the same source as your PGM, type `atem:aux1_input` in the Tally On Value box.
+Tally on:
+
+![Tally Trigger](images/tally-trigger-on-example.png?raw=true 'Tally Trigger')
+
+Tally off:
+
+![Tally Trigger](images/tally-trigger-off-example.png?raw=true 'Tally Trigger')
