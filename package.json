@@ -1,6 +1,6 @@
 {
 	"name": "thingm-blink1",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
@@ -12,12 +12,13 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@companion-module/base": "~1.0.2",
+		"@companion-module/base": "~1.1.1",
 		"got": "^12.5.3",
-		"node-blink1": "^0.5.1"
+		"node-blink1": "^0.5.1",
+		"node-hid": "npm:@julusian/hid@2.2.0-0"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^0.5.0"
+		"@companion-module/tools": "^1.0.0"
 	},
 	"resolutions": {
 		"node-hid": "npm:@julusian/hid@2.2.0-0"
