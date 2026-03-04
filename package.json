@@ -12,15 +12,15 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@companion-module/base": "~1.1.1",
-		"got": "^12.5.3",
-		"node-blink1": "^0.5.1",
-		"node-hid": "npm:@julusian/hid@2.2.0-0"
+		"@companion-module/base": "~1.4.1",
+		"got": "^12.6.1",
+		"node-blink1": "^0.5.1"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^1.5.2"
+		"@companion-module/tools": "^2.7.1"
 	},
 	"resolutions": {
-		"node-hid": "npm:@julusian/hid@2.2.0-0"
-	}
+		"node-hid": "^3.3.0"
+	},
+	"packageManager": "yarn@4.13.0"
 }
