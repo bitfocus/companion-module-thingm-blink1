@@ -1,3 +1,5 @@
+import { FixupNumericOrVariablesValueToExpressions } from "@companion-module/base"
+
 export const upgradeScripts = [
 	function combineLocalAndRemote(context, props) {
 		const result = {
@@ -13,12 +15,14 @@ export const upgradeScripts = [
 					result.updatedActions.push(action)
 					break
 				case 'color':
+					action.actionId = 'color2'
+					result.updatedActions.push(action)
+
 					try {
-						action.options.color = parseInt(action.options.color, 16)
-						action.actionId = 'color2'
-						result.updatedActions.push(action)
+						// Interpret the numeric color code as a hex value
+						action.options.color.value = parseInt(action.options.color.value, 16)
 					} catch (e) {
-						// Ignore this action, as we cant fix it
+						// Ignore this value, as we cant fix it
 					}
 					break
 				case 'loc_stop':

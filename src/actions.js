@@ -101,7 +101,8 @@ export function getActions(self) {
 		options: [
 			{
 				type: 'textinput',
-				label: 'http://host:port/blink1/yourcommand (Only the bit after blink1/)',
+				label: 'Command',
+				description: 'http://host:port/blink1/yourcommand (Only the bit after blink1/)',
 				id: 'custom',
 			},
 		],

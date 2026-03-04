@@ -1,10 +1,12 @@
-import { InstanceBase, InstanceStatus, runEntrypoint } from '@companion-module/base'
+import { InstanceBase, InstanceStatus } from '@companion-module/base'
 import Blink1 from 'node-blink1'
 import { getActions } from './actions.js'
 import { GetConfigFields } from './config.js'
 import { upgradeScripts } from './upgrade.js'
 
-class Blink1Instance extends InstanceBase {
+export const UpgradeScripts = upgradeScripts
+
+export default class Blink1Instance extends InstanceBase {
 	init(config) {
 		this.config = config
 
@@ -74,4 +76,3 @@ class Blink1Instance extends InstanceBase {
 	}
 }
 
-runEntrypoint(Blink1Instance, upgradeScripts)

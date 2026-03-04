@@ -1,7 +1,8 @@
 {
+  "$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
   "id": "thingm-blink1",
   "name": "thingm-blink1",
-  "shortname": "Blink(1)",
+  "shortname": "Blink-1",
   "description": "thingm-blink1",
   "version": "0.0.0",
   "license": "MIT",
@@ -22,7 +23,10 @@
     "type": "node22",
     "api": "nodejs-ipc",
     "apiVersion": "0.0.0",
-    "entrypoint": "../src/main.js"
+    "entrypoint": "../src/main.js",
+    "permissions": {
+      "native-addons": true
+    }
   },
   "manufacturer": "ThingM",
   "products": ["Blink(1)"],
