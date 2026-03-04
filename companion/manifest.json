@@ -1,5 +1,6 @@
 {
   "$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+  "type": "connection",
   "id": "thingm-blink1",
   "name": "thingm-blink1",
   "shortname": "Blink-1",
