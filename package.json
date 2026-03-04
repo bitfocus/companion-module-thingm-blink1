@@ -13,7 +13,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"@companion-module/base": "~2.0.0",
-		"got": "^12.6.1",
 		"node-blink1": "^0.5.1"
 	},
 	"devDependencies": {

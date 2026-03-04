@@ -1,5 +1,4 @@
 import { splitRgb, combineRgb, InstanceBase, InstanceStatus } from '@companion-module/base'
-import got from 'got'
 
 function toHex(color) {
 	return ('00000000' + parseInt(color, 10).toString(16)).substr(-6)
@@ -13,15 +12,17 @@ export function getActions(self) {
 	const runCommand = (cmd) => {
 		const url = `http://${self.config.host}:${self.config.port}/blink1/${cmd}`
 		console.log('Command', url)
-		got.get(url).then(
-			() => {
+		fetch(url)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`HTTP error ${response.status} ${response.statusText}`)
+				}
 				self.updateStatus(InstanceStatus.Ok)
-			},
-			(err) => {
+			})
+			.catch((err) => {
 				self.log('error', `HTTP GET Request failed (${err})`)
 				self.updateStatus(InstanceStatus.Disconnected)
-			}
-		)
+			})
 	}
 
 	const actions = {}
